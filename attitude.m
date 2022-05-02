@@ -15,11 +15,13 @@ angdfs = zeros(N,3);
 
 %% Arm length profile
 % uncomment this if the arm lengths change
-lfs = 0.3*ones(length(tfs),1);
-lfs(1:30000) = 0.3;
-lfs(30000:60000) = 0.1;
-lfs(60000:100000) = 0.3;
-lfs(100000:150000) = 0.1;
+l_max = 0.2;
+l_min = 0.1;
+lfs = l_max*ones(length(tfs),1);
+lfs(1:30000) = l_max;
+lfs(30000:60000) = l_min;
+lfs(60000:100000) = l_max;
+lfs(100000:150000) = l_min;
 l_arm_prev = lfs(1);
 
 %% initialize J for each config
@@ -92,9 +94,12 @@ while t < tend-dt
     Jbarvec = current_J(beta,M_Sph,R_Sph,m_point,l_arm,h_prop);
     % organize into the symmetric matrix
     if config == 1
+%         J{1} = [Jbarvec(1) Jbarvec(4) Jbarvec(5);...
+%             Jbarvec(4) Jbarvec(2) Jbarvec(6);...
+%             Jbarvec(5) Jbarvec(6) Jbarvec(3)] + diag([0.1 0.1 0.2]);
         J{1} = [Jbarvec(1) Jbarvec(4) Jbarvec(5);...
             Jbarvec(4) Jbarvec(2) Jbarvec(6);...
-            Jbarvec(5) Jbarvec(6) Jbarvec(3)] + diag([0.1 0.1 0.2]);
+            Jbarvec(5) Jbarvec(6) Jbarvec(3)] + diag([0.01 0.01 0.02]);
     elseif config == 2
         J{2} = [Jbarvec(1) Jbarvec(4) Jbarvec(5);...
             Jbarvec(4) Jbarvec(2) Jbarvec(6);...
@@ -106,27 +111,29 @@ while t < tend-dt
 
 % MOI Estimator   
     switch estimator
-        case 'proposed_controller'
-            eA = eOmega + 0.1*eR;
-            [Phat{config}, Jhat{config}] = calculate_Jtilde(eA, omega, alpha_D, Phat{config}, dt);
-        case 'proposed_robust'
+        case 'proposed_adaptive'
+            eA = eOmega + 0.*eR;
+            [Phat{config}, Jhat{config}] = calculate_Jtilde(eA, omega, alpha_D, Phat{config}, dt, J_gain);
+        case 'proposed_robust_adaptive'
+%             eA = eOmega + 0.5*eR;
             eA = eOmega + c2*Jhat{config}^-1*eR;
-            [Phat{config}, Jhat{config}] = calculate_Jtilde(eA, omega, alpha_D, Phat{config}, dt);
-        case 'lee_robust'
+            [Phat{config}, Jhat{config}] = calculate_Jtilde(eA, omega, alpha_D, Phat{config}, dt, J_gain);
+        case 'conventional_robust'
             Jhat{config} = Jhat{config};
     end
           
 % Controller
     switch estimator
-        case 'proposed_controller'
+        case 'proposed_adaptive'
             tau = -kR*eR -komega*eOmega + cross(omega, Jhat{config}*omega) + Jhat{config}*alpha_D;
-        case 'lee_robust'
+        case 'proposed_robust_adaptive'
+            eA = eOmega + c2*Jhat{config}^-1*eR;
+            mu = -delta_RAd^2*eA/(delta_RAd*norm(eA)+epsilon);
+            tau = -kR*eR -komega*eOmega + cross(omega, Jhat{config}*omega) + Jhat{config}*alpha_D + mu;
+        case 'conventional_robust'
             eA = eOmega + c2*Jhat{config}^-1*eR;
             mu = -delta_R^2*eA/(delta_R*norm(eA)+epsilon); 
             tau = -kR_lee*eR -komega_lee*eOmega + cross(omega, Jhat{config}*omega) + Jhat{config}*alpha_D + mu;
-        case 'proposed_robust'
-            mu = -delta_RAd^2*eA/(delta_RAd*norm(eA)+epsilon);
-            tau = -kR*eR -komega*eOmega + cross(omega, Jhat{config}*omega) + Jhat{config}*alpha_D + mu;
     end
 
 % State propagation 

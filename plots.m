@@ -1,5 +1,4 @@
 figure(1)
-title('Angular Velocity')
 subplot(3,1,1)
 plot(tfs,omegadfs(:,1),'-','LineWIdth',2)
 hold on

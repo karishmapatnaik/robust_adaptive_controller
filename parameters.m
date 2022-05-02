@@ -41,4 +41,14 @@ kR_lee = 0.0424;
 komega_lee = 0.0296;
 delta_R = 0.2; % change this 0.5 for 
 epsilon = 0.01;
-c2 = 0.2;
+c2 = 0.05;
+
+%% other simulation specs
+Psi = [];
+Rd_prev = eye(3);
+omegad_prev = zeros(3,1);
+angfs = rotm2eul(R);
+maxRoll = 20;
+maxPitch = 20;
+angdfs = angfs;
+e1 = [1 0 0]';

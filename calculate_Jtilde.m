@@ -1,7 +1,7 @@
 % Matlab function to calculate the updated estimate of inertia tensor
 % It takes the values of error, p revious estimate and sample time 
  
-function [Phat, Jtilde] = calculate_Jtilde(eA, omega, alpha_D, Phat, dt)
+function [Phat, Jtilde] = calculate_Jtilde(eA, omega, alpha_D, Phat, dt,J_gain)
     Y1 = [0 omega(2)*omega(3) -omega(2)*omega(3) omega(1)*omega(3) -omega(1)*omega(2) omega(3)^2-omega(2)^2;...
           -omega(1)*omega(3) 0 omega(1)*omega(3) -omega(2)*omega(3) omega(1)^2-omega(3)^2 omega(1)*omega(2);...
           omega(1)*omega(2) -omega(1)*omega(2) 0 omega(2)^2-omega(1)^2 omega(3)*omega(2) -omega(3)*omega(2)];
@@ -13,10 +13,7 @@ function [Phat, Jtilde] = calculate_Jtilde(eA, omega, alpha_D, Phat, dt)
     B = [YteA(2)+YteA(3) -0.5*YteA(4) -0.5*YteA(5);... 
              -0.5*YteA(4) YteA(1)+YteA(3)  -0.5*YteA(6);...
               -0.5*YteA(5)  -0.5*YteA(6) YteA(1)+YteA(2)];
-%     Phatdot = 1/0.00051*Phat*B*Phat; %% 0.0001 has too high gain
-%     Phatdot = 1/0.00071*Phat*B*Phat; %% 0.0001 has too high gain
-%     Phatdot = 1/0.001*Phat*B*Phat; %% good 
-    Phatdot = 1/0.001*Phat*B*Phat; %% good 
+    Phatdot = 1/J_gain*Phat*B*Phat; 
     Phat = Phat + Phatdot*dt;
     Jtilde = [Phat(2,2)+Phat(3,3) -Phat(1,2) -Phat(1,3);...
               -Phat(1,2) Phat(1,1)+Phat(3,3) -Phat(2,3);...

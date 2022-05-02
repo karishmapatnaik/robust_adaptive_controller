@@ -21,7 +21,7 @@ switch desired
         estimator = 'proposed_robust_adaptive';
         J_gain = 0.0005; %% reduce gains from case with no disturbance
         if disturbance
-            Delta_R = [0.001*sin(tfs); 0.001*sin(tfs); 0.001*sin(tfs)]';
+            Delta_R = [0.1*sin(tfs); 0.1*sin(tfs); 1*sin(tfs)]';
         end
     case 3
         estimator = 'conventional_robust';
