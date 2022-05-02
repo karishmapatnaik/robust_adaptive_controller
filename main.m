@@ -15,20 +15,18 @@ Delta_R = ones(length(tfs),3).*[0 0 0];
 desired =  2;
 switch desired
     case 1
-        estimator = 'proposed_adaptive';
-        J_gain = 0.0001;
-    case 2
         estimator = 'proposed_robust_adaptive';
         J_gain = 0.0005; %% reduce gains from case with no disturbance
         if disturbance
             Delta_R = [0.001*sin(tfs); 0.001*sin(tfs); 0.001*sin(tfs)]';
         end
-    case 3
+    case 2
         estimator = 'conventional_robust';
         if disturbance
             Delta_R = [0.001*sin(tfs); 0.001*sin(tfs); 0.001*sin(tfs)]';
         end        
 end      
 
+c2 = 0.05;
 attitude %% this has config CRFQ-like
 

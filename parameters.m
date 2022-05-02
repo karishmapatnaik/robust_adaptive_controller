@@ -39,9 +39,8 @@ previous_config = 1;
 % komega_lee = 1.2;
 kR_lee = 0.0424;
 komega_lee = 0.0296;
-delta_R = 0.2; % change this 0.5 for 
+delta_R = 0.2; 
 epsilon = 0.01;
-c2 = 0.05;
 
 %% other simulation specs
 Psi = [];

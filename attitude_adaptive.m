@@ -96,37 +96,22 @@ while t < tend-dt
     if config == 1
         J{1} = [Jbarvec(1) Jbarvec(4) Jbarvec(5);...
             Jbarvec(4) Jbarvec(2) Jbarvec(6);...
-            Jbarvec(5) Jbarvec(6) Jbarvec(3)] + diag([0.2 0.2 0.4]);
+            Jbarvec(5) Jbarvec(6) Jbarvec(3)] + diag([0.01 0.01 0.02]);
     elseif config == 2
         J{2} = [Jbarvec(1) Jbarvec(4) Jbarvec(5);...
             Jbarvec(4) Jbarvec(2) Jbarvec(6);...
-            Jbarvec(5) Jbarvec(6) Jbarvec(3)] + diag([0.1 0.1 0.2]);
+            Jbarvec(5) Jbarvec(6) Jbarvec(3)] + diag([0.01 0.01 0.02]);
     end
 
 % Calculate alpha_D
     alpha_D = - omegahat(omega)*R'*Rd*omegad + R'*Rd*omegadotd;
 
 % MOI Estimator   
-    switch estimator
-        case 'proposed_robust_adaptive'
-%             eA = eOmega + 0.5*eR;
-            eA = eOmega + c2*Jhat{config}^-1*eR;
-            [Phat{config}, Jhat{config}] = calculate_Jtilde(eA, omega, alpha_D, Phat{config}, dt, J_gain);
-        case 'conventional_robust'
-            Jhat{config} = Jhat{config};
-    end
+    eA = eOmega + 0.1*eR;
+    [Phat{config}, Jhat{config}] = calculate_Jtilde(eA, omega, alpha_D, Phat{config}, dt, J_gain);
           
 % Controller
-    switch estimator
-        case 'proposed_robust_adaptive'
-            eA = eOmega + c2*Jhat{config}^-1*eR;
-            mu = -delta_RAd^2*eA/(delta_RAd*norm(eA)+epsilon);
-            tau = -kR*eR -komega*eOmega + cross(omega, Jhat{config}*omega) + Jhat{config}*alpha_D + mu;
-        case 'conventional_robust'
-            eA = eOmega + c2*Jhat{config}^-1*eR;
-            mu = -delta_R^2*eA/(delta_R*norm(eA)+epsilon); 
-            tau = -kR_lee*eR -komega_lee*eOmega + cross(omega, Jhat{config}*omega) + Jhat{config}*alpha_D + mu;
-    end
+    tau = -kR*eR -komega*eOmega + cross(omega, Jhat{config}*omega) + Jhat{config}*alpha_D;
 
 % State propagation 
     states = {omega, R};
