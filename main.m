@@ -1,21 +1,25 @@
 clear 
 clc
 % close all
-global e3 m e1 dt t
 
-%% choose controller between 1, 2 or 3
-desired =  2;
-switch desired
-    case 1
-        estimator = 'proposed_controller';
-    case 2
-        estimator = 'lee_robust';
-    case 3
-        estimator = 'proposed_robust';
-end      
+global e3 m e1 dt t
 
 %% load parameters
 parameters
+
+%% choose controller between 1, 2 or 3
+desired =  1;
+switch desired
+    case 1
+        estimator = 'proposed_controller';
+        Delta_R = ones(length(tfs),3).*[0 0 0];
+    case 2
+        estimator = 'lee_robust';
+        Delta_R = [0.1*sin(tfs); 0.1*sin(tfs); 0.01*sin(tfs)]';
+    case 3
+        estimator = 'proposed_robust';
+        Delta_R = [0.1*sin(tfs); 0.1*sin(tfs); 0.01*sin(tfs)]';
+end      
 
 %% other simulation specs
 Psi = [];

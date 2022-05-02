@@ -110,11 +110,10 @@ while t < tend-dt
             eA = eOmega + 0.1*eR;
             [Phat{config}, Jhat{config}] = calculate_Jtilde(eA, omega, alpha_D, Phat{config}, dt);
         case 'proposed_robust'
-%             eA = eOmega + c2*Jhat{config}^-1*eR;
             eA = eOmega + c2*Jhat{config}^-1*eR;
             [Phat{config}, Jhat{config}] = calculate_Jtilde(eA, omega, alpha_D, Phat{config}, dt);
         case 'lee_robust'
-            Jhat{config} = Jhat{config} + 0*dt;
+            Jhat{config} = Jhat{config};
     end
           
 % Controller
@@ -126,8 +125,6 @@ while t < tend-dt
             mu = -delta_R^2*eA/(delta_R*norm(eA)+epsilon); 
             tau = -kR_lee*eR -komega_lee*eOmega + cross(omega, Jhat{config}*omega) + Jhat{config}*alpha_D + mu;
         case 'proposed_robust'
-%             mu = - 0.00005*sign(eA) - 0.0005*eA; 
-%             eA = eOmega + c2*Jhat{config}^-1*eR;
             mu = -delta_RAd^2*eA/(delta_RAd*norm(eA)+epsilon);
             tau = -kR*eR -komega*eOmega + cross(omega, Jhat{config}*omega) + Jhat{config}*alpha_D + mu;
     end
@@ -135,7 +132,7 @@ while t < tend-dt
 % State propagation 
     states = {omega, R};
     control = {tau};
-    [omega, R] = dynamics(states,control,J{config},Jdot);
+    [omega, R] = dynamics(states,control,J{config},Jdot,Delta_R(i));
     
 % Store full states
     angfs(i,:) = rotm2eul(R);
