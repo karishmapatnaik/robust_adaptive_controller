@@ -109,9 +109,8 @@ while t < tend-dt
 % MOI Estimator   
     switch estimator
         case 'proposed_robust_adaptive'
-%             eA = eOmega + 0.5*eR;
-            eA = eOmega + c2*Jhat{config}^-1*eR;
-            [Phat{config}, Jhat{config}] = calculate_Jtilde(eA, omega, alpha_D, Phat{config}, dt, J_gain);
+            eA_phat = eOmega + 0.5*eR;
+            [Phat{config}, Jhat{config}] = calculate_Jtilde(eA_phat, omega, alpha_D, Phat{config}, dt, J_gain);
         case 'conventional_robust'
             Jhat{config} = Jhat{config};
     end
